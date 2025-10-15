@@ -3,7 +3,9 @@ package br.unipar.exAulaSpring.controller
 import br.unipar.exAulaSpring.database.PessoasRepository
 import br.unipar.exAulaSpring.model.Pessoa
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -32,14 +34,34 @@ class PessoaController(
     fun cadastrarPessoa(@RequestBody pessoa: Pessoa)
             : ResponseEntity<Pessoa> {
         return ResponseEntity.ok(
-            pessoaRepository.save<Pessoa>(pessoa))
+            pessoaRepository.save<Pessoa>(pessoa)
+        )
     }
 
     //Quero pegar algo do banco
     @GetMapping
-    fun listarPessoa() : List<Pessoa>{
-        return pessoaRepository.findAll()
+    fun buscarPessoa(): ResponseEntity<List<Pessoa>> {
+        return ResponseEntity.ok(pessoaRepository.findAll())
+    }
+
+    @GetMapping("/{id}")
+    fun buscarId(@PathVariable id : Long): ResponseEntity<Pessoa> {
+        val pessoa : Pessoa = pessoaRepository.findById(id).get()
+        return if (pessoa != null){
+            ResponseEntity.ok(pessoa)
+        } else{
+            ResponseEntity.notFound().build()
+        }
     }
 
 
+    @DeleteMapping("/{id}")
+    fun deletarPessoa(@PathVariable id : Long) : ResponseEntity<Void> {
+        val pessoa = pessoaRepository.deleteById(id)
+        return if (pessoa != null) {
+            ResponseEntity.noContent().build()
+        } else {
+            ResponseEntity.notFound().build()
+        }
+    }
 }
